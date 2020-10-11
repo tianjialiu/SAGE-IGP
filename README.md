@@ -62,7 +62,7 @@ Liu T., L.J. Mickley, S. Singh, M. Jain, R.S. DeFries, and M.E. Marlier (2020). 
 
 ```
 # ======================================
-# Example Script for Reading SAGE-IGP
+# Example R Script for Reading SAGE-IGP
 # ======================================
 
 library(ncdf4); library(raster)
@@ -112,7 +112,7 @@ crs(DMdaily_ras) <- crs(raster())
 # retrieve variables from netCDF
 DMdailyAer <- ncvar_get(nc,"DMaer")
 
-# define emissions factors as g / kg DM
+# define emissions factors as g / kg DM, from Andreae (2019, ACP)
 efs_andreae <- data.frame(OC=4.9,BC=0.42)
 
 OCdaily <- DMdailyAer * efs_andreae$OC / 1e9 # daily OC, in Gg
@@ -120,7 +120,7 @@ BCdaily <- DMdailyAer * efs_andreae$BC / 1e9 # daily BC, in Gg
 ```
 
 ### Issues
-* The original script `adjFRP_T1.R` used to produce Punjab/Haryana emissions in SAGE-IGP was accidentally overwritten and cannot be recovered. The updated `adjFRP_T1.R` yields the same overall dry matter burned budget, but there may be slight differences.
+* The original script `adjFRP_T1.R` used to produce Punjab/Haryana emissions in SAGE-IGP was accidentally overwritten and cannot be recovered. The updated `adjFRP_T1.R` yields the same mean budget of dry matter burned overall, but there may be slight differences in annual and daily variability.
 
 ## Publication
 Liu T., L.J. Mickley, S. Singh, M. Jain, R.S. DeFries, and M.E. Marlier (2020, in press). Crop residue burning practices across north India inferred from household survey data: bridging gaps in satellite observations. *Atmos. Environ. X*
