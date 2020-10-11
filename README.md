@@ -60,6 +60,68 @@ Liu T., L.J. Mickley, S. Singh, M. Jain, R.S. DeFries, and M.E. Marlier (2020). 
 * Use agricultural emissions factors to convert dry matter (DM) to other chemical species, e.g. from [Andreae (2019, ACP)](https://doi.org/10.5194/acp-2019-303)
 * Use `DMaer` for aerosol species and `DM` for all other chemical species
 
+```
+# ======================================
+# Example Script for Reading SAGE-IGP
+# ======================================
+
+library(ncdf4); library(raster)
+
+# --------------------------
+# Convert netCDF to raster
+# --------------------------
+# read SAGE-IGP netCDF for 2017
+nc <- nc_open("adjFRP_Inv/nc/SAGE-IGP_daily_2017.nc")
+
+# retrieve variables from netCDF
+DMdaily <- ncvar_get(nc,"DM")
+
+# total DM in 2017 from Sep-Dec
+DMtotal <- apply(DMdaily,c(1,2),sum)
+
+# read lat, lon
+lat <- ncvar_get(nc,"lat")
+lon <- ncvar_get(nc,"lon")
+
+# extent of SAGE-IGP bounds
+regionExtent <- extent(c(72,89,23,33))
+
+# convert 'DMtotal' (a matrix) to a raster
+DMtotal_ras <- raster(t(DMtotal)) / 1e9 # convert from kg to Tg per grid cell
+extent(DMtotal_ras) <- regionExtent # set extent of raster to regionExtent
+crs(DMtotal_ras) <- crs(raster()) # EPSG:4326 - default lat/lon projection
+
+# a simple plot of total DM in 2017
+plot(DMtotal_ras)
+
+# raster where each grid cell represents its area in sq. meters
+area_m2 <- raster::area(invDMadj) * 1e6
+
+# convert Nov 1, 2017 emissions from kg to kg/m2/s
+DMdaily_ras <- raster(t(DMdaily[,,62]))
+DMdaily_ras <- DMtotal_ras / area_m2 / (24*24*60)
+extent(DMdaily_ras) <- regionExtent
+crs(DMdaily_ras) <- crs(raster())
+
+# --------------------------------------
+# Convert DM to other chemical species
+# --------------------------------------
+# for aerosol species, e.g. OC, BC, PM25, use 'DMaer'
+# for all other species, use 'DM'
+
+# retrieve variables from netCDF
+DMdailyAer <- ncvar_get(nc,"DMaer")
+
+# define emissions factors as g / kg DM
+efs_andreae <- data.frame(OC=4.9,BC=0.42)
+
+OCdaily <- DMdailyAer * efs_andreae$OC / 1e9 # daily OC, in Gg
+BCdaily <- DMdailyAer * efs_andreae$BC / 1e9 # daily BC, in Gg
+```
+
+### Issues
+* The original script `adjFRP_T1.R` used to produce Punjab/Haryana emissions in SAGE-IGP was accidentally overwritten and cannot be recovered. The updated `adjFRP_T1.R` yields the same overall dry matter burned budget, but there may be slight differences.
+
 ## Publication
 Liu T., L.J. Mickley, S. Singh, M. Jain, R.S. DeFries, and M.E. Marlier (2020, in press). Crop residue burning practices across north India inferred from household survey data: bridging gaps in satellite observations. *Atmos. Environ. X*
 
