@@ -123,4 +123,4 @@ BCdaily <- DMdailyAer * efs_andreae$BC / 1e9 # daily BC, in Gg
 * The original script `adjFRP_T1.R` used to produce Punjab/Haryana emissions in SAGE-IGP was accidentally overwritten and cannot be recovered. The updated `adjFRP_T1.R` yields the same mean budget of dry matter burned overall, but there may be slight differences in annual and daily variability.
 
 ## Publication
-Liu T., L.J. Mickley, S. Singh, M. Jain, R.S. DeFries, and M.E. Marlier (2020, in press). Crop residue burning practices across north India inferred from household survey data: bridging gaps in satellite observations. *Atmos. Environ. X*, 100091. https://doi.org/10.1016/j.aeaoa.2020.100091
+Liu T., L.J. Mickley, S. Singh, M. Jain, R.S. DeFries, and M.E. Marlier (2020). Crop residue burning practices across north India inferred from household survey data: bridging gaps in satellite observations. *Atmos. Environ. X* 8, 100091. https://doi.org/10.1016/j.aeaoa.2020.100091
