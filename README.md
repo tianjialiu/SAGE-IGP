@@ -87,7 +87,7 @@ lon <- ncvar_get(nc,"lon")
 regionExtent <- extent(c(72,89,23,33))
 
 # convert 'DMtotal' (a matrix) to a raster
-DMtotal_ras <- raster(t(DMtotal)) / 1e9 # convert from kg to Tg per grid cell
+DMtotal_ras <- raster(t(DMtotal)[rev(order(lat)),]) / 1e9 # convert from kg to Tg per grid cell
 extent(DMtotal_ras) <- regionExtent # set extent of raster to regionExtent
 crs(DMtotal_ras) <- crs(raster()) # EPSG:4326 - default lat/lon projection
 
@@ -95,10 +95,10 @@ crs(DMtotal_ras) <- crs(raster()) # EPSG:4326 - default lat/lon projection
 plot(DMtotal_ras)
 
 # raster where each grid cell represents its area in sq. meters
-area_m2 <- raster::area(invDMadj) * 1e6
+area_m2 <- raster::area(DMtotal_ras) * 1e6
 
 # convert Nov 1, 2017 emissions from kg to kg/m2/s
-DMdaily_ras <- raster(t(DMdaily[,,62]))
+DMdaily_ras <- raster(t(DMdaily[,,62])[rev(order(lat)),])
 DMdaily_ras <- DMtotal_ras / area_m2 / (24*24*60)
 extent(DMdaily_ras) <- regionExtent
 crs(DMdaily_ras) <- crs(raster())
