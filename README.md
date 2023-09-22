@@ -119,6 +119,9 @@ OCdaily <- DMdailyAer * efs_andreae$OC / 1e9 # daily OC, in Gg
 BCdaily <- DMdailyAer * efs_andreae$BC / 1e9 # daily BC, in Gg
 ```
 
+### GEOS-Chem - HEMCO Compatibility
+SAGE-IGP can be combined with the GFEDv4s inventory by replacing GFEDv4s with SAGE-IGP agricultural fire emissions over north India. The resulting GFEDv4s+SAGE-IGP fire emissions follows the netCDF format of the original GFEDv4s emissions in HEMCO. Please contact me via email if you're interested in running GEOS-Chem with these files.
+
 ### Issues
 * The original script `adjFRP_T1.R` used to produce Punjab/Haryana emissions in SAGE-IGP was accidentally overwritten and cannot be recovered. The updated `adjFRP_T1.R` yields the same mean budget of dry matter burned overall, but there may be slight differences in annual and daily variability.
 
