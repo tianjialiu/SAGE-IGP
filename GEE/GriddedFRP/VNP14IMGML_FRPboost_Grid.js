@@ -9,21 +9,23 @@ var indiaShp = ee.FeatureCollection("projects/GlobalFires/IndiaAgFires/IND_adm1"
 // on a 0.25deg x 0.25deg grid
 // =========================================
 // @author: Tianjia Liu
-// Last updated: May 9, 2020
+// Last updated: August 17, 2020
 // -----------------------------------------
 
 // Input Parameters
 var projFolder = 'projects/GlobalFires/';
 var ST_NM = 'Punjab';
 
-var sYear = 2012; var eYear = 2018;
+var sYear = 2003; var eYear = 2018;
 var sMonth = 9; var eMonth = 12;
 var satMODIS = 'A'; // Aqua: 'A' or Terra 'T'
 
 // Global Parameters
-var params = require('users/tl2581/SAGE-IGP:InputParams.js');
+var params = require('users/embrslab/SAGE-IGP:InputParams.js');
 var proj = params.modis1km.projection();
 var nDayMonthList = params.nDayMonthList;
+var monthStrList = params.monthStrList;
+var gridIDsList = params.gridIDsList;
 
 // Region Boundaries
 var Shp = indiaShp.filter(ee.Filter.eq('STATE',ST_NM.toUpperCase()));
@@ -33,7 +35,7 @@ if (ST_NM == 'Rajasthan') {
     .map(params.filterDistricts));
   ShpGrid = gfedGrid.filterBounds(ShpDist).sort('id');
 }
-var ShpGridList = ShpGrid.toList(500,0);
+var ShpGridList = ShpGrid.toList(500);
 
 if (satMODIS == 'A') {var satMODISsr = 'MYD09GA'; var satName = 'Aqua'}
 if (satMODIS == 'T') {var satMODISsr = 'MOD09GA'; var satName = 'Terra'}
@@ -49,12 +51,12 @@ var nGridList = {
   'Rajasthan': 52
 };
 
+var gridIDs = gridIDsList[ST_NM];
+
 // Note: may need to chunk exports to prevent timeouts
 for (var iGrid = 0; iGrid < nGridList[ST_NM]; iGrid++) {
-  
+  var gridID = gridIDs[iGrid];
   var inShpGrid = ee.Feature(ShpGridList.get(iGrid));
-  var gridID = inShpGrid.get('id').getInfo();
-  var inShpGrid = inShpGrid.geometry();
   
   var fire_year = [];
   for (var inYear = sYear; inYear <= eYear; inYear++) {
@@ -62,7 +64,7 @@ for (var iGrid = 0; iGrid < nGridList[ST_NM]; iGrid++) {
     var days_of_month = nDayMonthList[inYear];
   
     for (var inMonth = sMonth; inMonth <= eMonth; inMonth++) {
-      var inMonthStr = ee.Number(inMonth).format('%02d').getInfo();
+      var inMonthStr = monthStrList[inMonth-1];
       
       var fire_month = [];
       for (var inDay = 1; inDay <= days_of_month[inMonth-1]; inDay++) {
@@ -73,13 +75,13 @@ for (var iGrid = 0; iGrid < nGridList[ST_NM]; iGrid++) {
           .filter(ee.Filter.eq('sat',satMODIS)).filter(ee.Filter.eq('type',0))
           .filter(ee.Filter.eq('dn','D'))
           .filter(ee.Filter.eq('YYYYMMDD',yyyymmdd))
-          .filterBounds(Shp).filterBounds(inShpGrid);
+          .filterBounds(Shp).filterBounds(inShpGrid.geometry());
           
         var vnp14ml_day = ee.FeatureCollection(projFolder + 'VNP14IMGML/VNP14IMGML_' + inYear + '_' + inMonthStr)
           .filter(ee.Filter.eq('type',0))
           .filter(ee.Filter.lt('HHMM',1000))
           .filter(ee.Filter.eq('YYYYMMDD',yyyymmdd))
-          .filterBounds(Shp).filterBounds(inShpGrid);
+          .filterBounds(Shp).filterBounds(inShpGrid.geometry());
         
         var modisImg = mcd14ml_day.reduceToImage({
           properties: ['HHMM'],

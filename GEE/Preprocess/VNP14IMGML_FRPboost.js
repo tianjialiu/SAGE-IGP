@@ -8,7 +8,7 @@ var indiaShp = ee.FeatureCollection("projects/GlobalFires/IndiaAgFires/IND_adm1"
 // relative to MODIS/Aqua FRP
 // =========================================
 // @author: Tianjia Liu
-// Last updated: May 9, 2020
+// Last updated: August 17, 2020
 // -----------------------------------------
 
 // Input Parameters
@@ -20,10 +20,11 @@ var sMonth = 9; var eMonth = 12;
 var satMODIS = 'A'; // Aqua: 'A' or Terra 'T'
 
 // Global Parameters
-var params = require('users/tl2581/SAGE-IGP:InputParams.js');
+var params = require('users/embrslab/SAGE-IGP:InputParams.js');
 var proj = params.modis1km.projection();
 var bufferSize = proj.nominalScale();
 var nDayMonthList = params.nDayMonthList;
+var monthStrList = params.monthStrList;
 
 // Region Boundaries
 var Shp = indiaShp.filter(ee.Filter.eq('STATE',ST_NM.toUpperCase()));
@@ -43,7 +44,7 @@ for (var inYear = sYear; inYear <= eYear; inYear++) {
   var days_of_month = nDayMonthList[inYear];
   
   for (var inMonth = sMonth; inMonth <= eMonth; inMonth++) {
-    var inMonthStr = ee.Number(inMonth).format('%02d').getInfo();
+    var inMonthStr = monthStrList[inMonth-1];
     
     var fire_month = [];
     for (var inDay = 1; inDay <= days_of_month[inMonth-1]; inDay++) {
@@ -78,7 +79,8 @@ for (var inYear = sYear; inYear <= eYear; inYear++) {
 
       fire_month[inDay-1] = ee.Feature(null,{
         YYYYMMDD: yyyymmdd,
-        FRP: viirsBuf.aggregate_sum('FRP'),
+        HHMM: vnp14ml_day.reduceColumns(ee.Reducer.mode(),['HHMM']).get('mode'),
+        FRP: vnp14ml_day.aggregate_sum('FRP'),
         FRPboost: viirsIntMODIS.aggregate_sum('FRP')
       });
       
@@ -88,7 +90,7 @@ for (var inYear = sYear; inYear <= eYear; inYear++) {
       collection: ee.FeatureCollection(fire_month),
       folder: 'VNP14IMGML_FRPboost',
       description: 'VNP14IMGML_FRP_' + ST_NM.split(' ').join('_') + '_' + inYear + '_' + inMonthStr,
-      selectors: ['YYYYMMDD','FRP','FRPboost']
+      selectors: ['YYYYMMDD','HHMM','FRP','FRPboost']
     });
   }
 }

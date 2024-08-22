@@ -9,7 +9,7 @@ var indiaShp = ee.FeatureCollection("projects/GlobalFires/IndiaAgFires/IND_adm1"
 // for degree of cloudiness/haziness estimation
 // ==============================================
 // @author: Tianjia Liu
-// Last updated: August 12, 2020
+// Last updated: August 17, 2020
 // ----------------------------------------------
 
 // Input Parameters
@@ -21,12 +21,17 @@ var sMonth = 9; var eMonth = 12;
 var satMODIS = 'T'; // Aqua: 'A' or Terra 'T'
 
 // Global Parameters
-var params = require('users/tl2581/SAGE-IGP:InputParams.js');
+var params = require('users/embrslab/SAGE-IGP:InputParams.js');
 var proj = params.modis500m.projection();
 var nDayMonthList = params.nDayMonthList;
+var monthStrList = params.monthStrList;
 
 // Region Boundaries
 var Shp = indiaShp.filter(ee.Filter.eq('STATE',ST_NM.toUpperCase()));
+if (ST_NM == 'Rajasthan') {
+  Shp = ee.FeatureCollection(ee.List(['Ganganagar','Hanumangarh'])
+    .map(params.filterDistricts)).union();
+}
 
 if (satMODIS == 'A') {var satMODISsr = 'MYD09GA'; var satName = 'Aqua'}
 if (satMODIS == 'T') {var satMODISsr = 'MOD09GA'; var satName = 'Terra'}
@@ -49,7 +54,7 @@ for (var inYear = sYear; inYear <= eYear; inYear++) {
   }
   
   for (var inMonth = sMonth; inMonth <= eMonth; inMonth++) {
-    var inMonthStr = ee.Number(inMonth).format('%02d').getInfo();
+    var inMonthStr = monthStrList[inMonth-1];
     
     var fire_sr_month = []; var fire_sr_area_month = [];
     for (var inDay = 1; inDay <= days_of_month[inMonth-1]; inDay++) {

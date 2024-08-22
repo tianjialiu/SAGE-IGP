@@ -10,18 +10,19 @@ var indiaShp = ee.FeatureCollection("projects/GlobalFires/IndiaAgFires/IND_adm1"
 // on a 0.25deg x 0.25deg grid
 // ====================================
 // @author: Tianjia Liu
-// Last updated: May 9, 2020
+// Last updated: August 17, 2020
 // ------------------------------------
 
 // Input Parameters
 var ST_NM = 'Punjab';
 
 // Global Parameters
-var params = require('users/tl2581/SAGE-IGP:InputParams.js');
+var params = require('users/embrslab/SAGE-IGP:InputParams.js');
 var proj = params.modis1km.projection();
 var sYear = params.sYear;
 var eYear = params.eYear;
 var nDayList = params.nDayList;
+var gridIDsList = params.gridIDsList;
 
 // Region Boundaries
 var Shp = indiaShp.filter(ee.Filter.eq('STATE',ST_NM.toUpperCase()));
@@ -31,7 +32,7 @@ if (ST_NM == 'Rajasthan') {
     .map(params.filterDistricts));
   ShpGrid = gfedGrid.filterBounds(ShpDist).sort('id');
 }
-var ShpGridList = ShpGrid.toList(500,0);
+var ShpGridList = ShpGrid.toList(500);
 
 // Calculate FRP
 var getFRP = function(image) {
@@ -65,7 +66,8 @@ var getFRPregion = function(inDay) {
   var frpDay = ee.Image(mod14a1Day).rename('MOD14A1')
     .addBands(ee.Image(myd14a1Day).rename('MYD14A1'))
     .addBands(combinedDay.rename('MxD14A1'))
-    .reproject({crs: proj, scale: proj.nominalScale()});
+    .reproject({crs: proj, scale: proj.nominalScale()})
+    .clip(Shp);
     
   var frpRegionDay = frpDay
     .reduceRegions({
@@ -97,12 +99,13 @@ var nGridList = {
   'Rajasthan': 52
 };
 
+var gridIDs = gridIDsList[ST_NM];
+
 // Note: may need to chunk exports to prevent timeouts
 for (var iGrid = 0; iGrid < nGridList[ST_NM]; iGrid++) {
-
+  var gridID = gridIDs[iGrid];
   var inShpGrid = ee.Feature(ShpGridList.get(iGrid));
-  var gridID = inShpGrid.get('id').getInfo();
-  
+
   var FRPtable = [];
   for (var inYear = sYear; inYear <= eYear; inYear++) {
     var filterYr = ee.Filter.calendarRange(inYear,inYear,'year');

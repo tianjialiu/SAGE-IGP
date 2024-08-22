@@ -10,7 +10,7 @@ var indiaShp = ee.FeatureCollection("projects/GlobalFires/IndiaAgFires/IND_adm1"
 // ----------------------------------------------
 
 // Global Parameters
-var params = require('users/tl2581/SAGE-IGP:InputParams.js');
+var params = require('users/embrslab/SAGE-IGP:InputParams.js');
 var proj = params.modis1km.projection();
 var sYear = params.sYear;
 var eYear = params.eYear;
