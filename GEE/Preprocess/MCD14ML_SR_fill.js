@@ -19,7 +19,7 @@ var ST_NM = 'Punjab';
 
 var xYears = [2003,2008];
 var xMonths = [12];
-var satMODIS = 'T'; // Aqua: 'A' or Terra 'T'
+var satMODIS = 'TERRA'; // Aqua: 'AQUA' or Terra 'TERRA'
 
 // Global Parameters
 var params = require('users/embrslab/SAGE-IGP:InputParams.js');
@@ -34,8 +34,8 @@ if (ST_NM == 'Rajasthan') {
     .map(params.filterDistricts)).union();
 }
 
-if (satMODIS == 'A') {var satMODISsr = 'MYD09GA'; var satName = 'Aqua'}
-if (satMODIS == 'T') {var satMODISsr = 'MOD09GA'; var satName = 'Terra'}
+if (satMODIS == 'AQUA') {var satMODISsr = 'MYD09GA'; var satName = 'Aqua'}
+if (satMODIS == 'TERRA') {var satMODISsr = 'MOD09GA'; var satName = 'Terra'}
 
 for (var iYear = 0; iYear < xYears.length; iYear++) {
   
@@ -64,9 +64,9 @@ for (var iYear = 0; iYear < xYears.length; iYear++) {
       
       var yyyymmdd = inYear*1e4+inMonth*1e2+inDay;
       
-      var mcd14ml_day = ee.FeatureCollection(projFolder + 'MCD14ML/MCD14ML_' + inYear + '_' + inMonthStr)
-        .filter(ee.Filter.eq('sat',satMODIS)).filter(ee.Filter.eq('type',0))
-        .filter(ee.Filter.eq('dn','D'))
+      var mcd14ml_day = ee.FeatureCollection(projFolder + 'MCD14ML/MCD14ML_' + inYear + inMonthStr)
+        .filter(ee.Filter.eq('Sat',satMODIS)).filter(ee.Filter.eq('Type',0))
+        .filter(ee.Filter.eq('DNFlag','D'))
         .filter(ee.Filter.eq('YYYYMMDD',yyyymmdd))
         .filterBounds(Shp);
 
@@ -113,7 +113,7 @@ for (var iYear = 0; iYear < xYears.length; iYear++) {
       collection: fire_sr_month,
       folder: 'MCD14ML_SR',
       description: 'MCD14ML_SR_' + satName + '_' + ST_NM.replace(' ','_') + '_' + inYear + '_' + inMonthStr,
-      selectors: ['YYYYMMDD','HHMM','conf','sat','FRP',
+      selectors: ['YYYYMMDD','HHMM','Confidence','Sat','FRP',
         'sur_refl_b01','sur_refl_b02','sur_refl_b03',
         'sur_refl_b04','sur_refl_b05','sur_refl_b06',
         'sur_refl_b07','.geo']
